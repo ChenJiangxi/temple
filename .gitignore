@@ -14,3 +14,7 @@ film/preview*/
 film/*.mp4
 film/*.wav
 film/*.png
+film/*.jpg
+film/review/
+film/check/
+film/test/

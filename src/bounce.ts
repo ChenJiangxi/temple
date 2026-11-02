@@ -88,6 +88,9 @@ export class BounceLight {
  /** Running average of recent results while time plays fast (see gather). */
  private acc:{light:Float32Array;dir:Float32Array}|null=null;
  private blend=1;
+ /** Film rendering: finish each gather before returning (no slicing between frames), so every
+  * frame sees the bounce light of exactly its own sun position, however fast frames are made. */
+ sync=false;
  update(direction:THREE.Vector3,irradiance:THREE.Color,blend=1){
   this.blend=blend;
   if(direction.y<=0.01){bounceUniforms.uBounceEnabled.value=0;return}
@@ -151,7 +154,7 @@ export class BounceLight {
   // Rough occluders the gather must respect: the white side walls of the hall and the upper slab.
   const wallZ=(y:number)=>y<2.35?1.4:.1;
   for(let i=0;i<count;i++){
-   if(i%1500===1499){await new Promise(r=>setTimeout(r,0));if(generation!==this.generation)return}
+   if(!this.sync&&i%1500===1499){await new Promise(r=>setTimeout(r,0));if(generation!==this.generation)return}
    const x=c[i*3],y=c[i*3+1],z=c[i*3+2];let sr=0,sg=0,sb=0,dx=0,dy=0,dz=0;
    for(let k=0;k<clusters.length;k+=9){
     const qx=clusters[k],qy=clusters[k+1],qz=clusters[k+2];

@@ -620,7 +620,7 @@ export class TempleScene {
  // every frame with a fixed time step, its own camera, clock and date, at a fixed output size.
  film=false;
  filmStart(w:number,h:number,ratio:number){
-  this.film=true;this.stopGuide();this.transition=null;this.keys.clear();this.orbit.enabled=false;this.mode='orbit';
+  this.film=true;this.bounce.sync=true;this.stopGuide();this.transition=null;this.keys.clear();this.orbit.enabled=false;this.mode='orbit';
   this.applyQuality(2);this.renderer.setPixelRatio(ratio);this.renderer.setSize(w,h,false);this.atmosphere.setSize(w,h);
   skyUniforms.uSkyEnabled.value=1;
  }

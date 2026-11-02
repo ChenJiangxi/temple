@@ -36,6 +36,8 @@ bun run preview
 
 线上地址：https://temple.jessylab.cc（`dist/` 由 nginx 直接提供，服务器上不运行 Node）。开发链接加 `?cover=0` 可跳过开篇。
 
+宣传片（约 84 秒）：`film/render-all.sh` 用网站自己的场景逐帧渲染各镜头（`?film=<镜头>`，需开着本地预览或线上站），`node film/music.mjs film/music.wav` 合成配乐，`film/assemble.sh` 拼成 `film/temple-promo-1080p.mp4`。镜头、字幕和时间都写在 `src/film.ts` 里。
+
 仓库不含作者的原始 DWG 文件、开发截图（evidence/）和改动备份（revisions/）；从 DWG 提取出的平面、剖面、屋顶与经文数据在 reference/cad/。
 
 本轮未运行单元测试、类型检查或完整回归套件。已生成生产网页，并通过 Browser Automation 查看建筑外观、浮雕与屋顶的实际渲染；移动端表现不等同于真实手机或 iOS Safari 验证。

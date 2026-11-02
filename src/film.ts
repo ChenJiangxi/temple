@@ -223,30 +223,39 @@ const jpeg = (canvas: HTMLCanvasElement) => new Promise<Blob>((resolve, reject) 
 const tick = () => new Promise(r => setTimeout(r, 0));
 
 /** Render frames [from, to) of one shot (or only the frames in `still`), then download them as
- * one Motion-JPEG file. Each run renders some frames before `from` uncaptured, so the light's
- * temporal smoothing is settled when capture starts. `ratio` supersamples the 3D image. */
+ * one Motion-JPEG file. Each run renders 90 frames before `from` uncaptured (from an exact bounce
+ * light), so the light's temporal smoothing has settled when capture starts. `ratio` supersamples the 3D image. */
 export async function runFilm(engine: TempleScene, id: string, o: { from?: number; to?: number; still?: number[]; ratio?: number; status: (s: string) => void }) {
   const index = SHOTS.findIndex(s => s.id === id), shot = SHOTS[index];
   if (!shot) { o.status(`film-error unknown shot ${id}`); return; }
   const total = Math.round(shot.seconds * FPS), from = Math.max(0, o.from ?? 0), to = Math.min(total, o.to ?? total);
   engine.filmStart(W, H, o.ratio ?? 1.5);
+  // The sky-visibility field is measured in the background after the page reports ready; frames
+  // made before it is done get a different exposure and sky light. Wait for it.
+  o.status('film waiting for sky field');
+  while (!engine.skyField.values) await new Promise(r => setTimeout(r, 100));
   const out = document.createElement('canvas'); out.width = W; out.height = H;
   const c = out.getContext('2d')!; c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
   await document.fonts.load(`24px ${SERIF}`); await document.fonts.load(`24px ${SANS}`);
   const wanted = o.still ? [...o.still].sort((a, b) => a - b) : null;
   const frames: number[] = [];
   if (wanted) { for (const s of wanted) for (let f = Math.max(0, s - 24); f <= s; f++) frames.push(f); }
-  else for (let f = Math.max(0, from - 45); f < to; f++) frames.push(f);
+  else for (let f = Math.max(0, from - 90); f < to; f++) frames.push(f);
   const parts: Blob[] = []; let date = ''; const started = performance.now(); let last = -2;
   for (const f of frames) {
-    const t = f / FPS, dt = f === last + 1 ? 1 / FPS : 1;
+    const t = f / FPS, jump = f !== last + 1, dt = jump ? 1 : 1 / FPS;
     last = f;
     const d = shot.date(t); if (d !== date) { engine.filmDate(d); date = d; }
-    engine.filmSun(shot.hour(t), shot.playing);
+    // After a jump (the start of a run or a still), compute the bounce light exactly instead of
+    // easing toward it, so no state from the page's initial view leaks into the frames; a part
+    // rendered on its own then joins the previous part without a visible step.
+    engine.filmSun(shot.hour(t), shot.playing && !jump);
     const cam = shot.cam(t); engine.filmCamera(shot.view, cam.pos, cam.target, cam.fov);
     engine.filmFrame(dt, shot.playing);
     const capture = wanted ? wanted.includes(f) : f >= from;
     if (!capture) { if (f % 8 === 0) await tick(); continue; }
+    // (the first captured frame after a jump would show the exact bounce light ahead of the eased
+    // sequence: still mode only; film runs always start with a warm-up)
     c.drawImage(engine.renderer.domElement, 0, 0, W, H);
     drawOverlay(c, shot, t, engine, index);
     parts.push(await jpeg(out));

@@ -13,7 +13,7 @@ for i in $(seq 1 $((${#SHOTS[@]}-1))); do
   offset=$(echo "$offset + ${SECS[$((i-1))]} - $X" | bc)
   filter+="${prev}[$i:v]xfade=transition=fade:duration=$X:offset=$offset[v$i];"; prev="[v$i]"
 done
-total=$(echo "$offset + ${SECS[-1]}" | bc)
+total=$(echo "$offset + ${SECS[$((${#SECS[@]}-1))]}" | bc)
 filter+="${prev}fade=t=in:st=0:d=1.2,fade=t=out:st=$(echo "$total - 1.8" | bc):d=1.8,format=yuv420p[v];"
 filter+="[${#SHOTS[@]}:a]volume=1.2dB,alimiter=limit=0.84:level=false,afade=t=out:st=$(echo "$total - 2" | bc):d=2[a]"
 ffmpeg -loglevel error -y "${inputs[@]}" -i music.wav -filter_complex "$filter" -map "[v]" -map "[a]" \
