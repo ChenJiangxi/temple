@@ -22,7 +22,9 @@ type Shot = {
   callouts?: Callout[]; levels?: { from: number; to: number; side: 'left' | 'right'; marks: Level[] }; card?: { kind: 'open' | 'close'; from: number; to: number };
 };
 
-const W = 1920, H = 1080, FPS = 30, TOTAL_SHOTS = 16;
+// Output size: 1920 x 1080 for the film; covers set their own (e.g. 1200 x 1600, 3:4).
+let W = 1920, H = 1080;
+const FPS = 30, TOTAL_SHOTS = 16;
 const SERIF = '"Songti SC","STSong","Noto Serif SC",serif', SANS = '"PingFang SC","Helvetica Neue",sans-serif';
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const sine = (k: number) => .5 - .5 * Math.cos(Math.PI * clamp01(k));
@@ -236,7 +238,8 @@ const tick = () => new Promise(r => setTimeout(r, 0));
 /** Render frames [from, to) of one shot (or only the frames in `still`), then download them as
  * one Motion-JPEG file. Each run renders 90 frames before `from` uncaptured (from an exact bounce
  * light), so the light's temporal smoothing has settled when capture starts. `ratio` supersamples the 3D image. */
-export async function runFilm(engine: TempleScene, id: string, o: { from?: number; to?: number; still?: number[]; ratio?: number; status: (s: string) => void }) {
+export async function runFilm(engine: TempleScene, id: string, o: { from?: number; to?: number; still?: number[]; ratio?: number; w?: number; h?: number; clean?: boolean; status: (s: string) => void }) {
+  if (o.w && o.h) { W = o.w; H = o.h; }
   const index = SHOTS.findIndex(s => s.id === id), shot = SHOTS[index];
   if (!shot) { o.status(`film-error unknown shot ${id}`); return; }
   const total = Math.round(shot.seconds * FPS), from = Math.max(0, o.from ?? 0), to = Math.min(total, o.to ?? total);
@@ -268,7 +271,7 @@ export async function runFilm(engine: TempleScene, id: string, o: { from?: numbe
     // (the first captured frame after a jump would show the exact bounce light ahead of the eased
     // sequence: still mode only; film runs always start with a warm-up)
     c.drawImage(engine.renderer.domElement, 0, 0, W, H);
-    drawOverlay(c, shot, t, engine, index);
+    if (!o.clean) drawOverlay(c, shot, t, engine, index); // clean: the picture alone (covers)
     parts.push(await jpeg(out));
     if (parts.length % 10 === 0) o.status(`film ${id} ${parts.length}/${wanted ? wanted.length : to - from}`);
   }

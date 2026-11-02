@@ -21,3 +21,4 @@ film/test/
 film/*.zip
 film/preview/
 film/library/
+film/covers/

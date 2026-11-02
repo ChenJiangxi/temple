@@ -86,7 +86,7 @@ function App(){
  useEffect(()=>{
   if(!ready||!filmShot||!engine.current)return;const s=engine.current;
   const num=(k:string)=>params.get(k)!==null&&Number.isFinite(Number(params.get(k)))?Number(params.get(k)):undefined;
-  import('./film').then(m=>m.runFilm(s,filmShot,{from:num('from'),to:num('to'),ratio:num('ratio'),still:params.get('still')?.split(',').map(Number).filter(Number.isFinite),status:setFilmStatus})).catch(e=>{console.error(e);setFilmStatus('film-error '+String(e))});
+  import('./film').then(m=>m.runFilm(s,filmShot,{from:num('from'),to:num('to'),ratio:num('ratio'),w:num('w'),h:num('h'),clean:params.has('clean'),still:params.get('still')?.split(',').map(Number).filter(Number.isFinite),status:setFilmStatus})).catch(e=>{console.error(e);setFilmStatus('film-error '+String(e))});
  },[ready]);
  useEffect(()=>{document.querySelector('meta[name=theme-color]')?.setAttribute('content',dark?'#131312':'#f5f4f0')},[dark]);
  useEffect(()=>{if(!title)return;const t=setTimeout(()=>setTitle(null),3600);return()=>clearTimeout(t)},[title]);
