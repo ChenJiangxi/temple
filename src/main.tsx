@@ -11,7 +11,9 @@ const base=import.meta.env.BASE_URL;
 const params=new URLSearchParams(location.search);
 const winterStudy=params.get('scenario')==='winter-columns';
 // The site opens on a cover (the building at dusk); development links and the winter study skip it.
-const startOnCover=!(params.has('inspect')||winterStudy||params.get('cover')==='0');
+// Development aid: ?film=<shot>[&from=&to=|&still=f1,f2][&ratio=] renders the promotional film (film.ts).
+const filmShot=params.get('film');
+const startOnCover=!(params.has('inspect')||winterStudy||filmShot||params.get('cover')==='0');
 const initial:TourState={view:'columns',mode:'orbit',guiding:false,progress:0,hour:DEFAULT_SOLAR_NOON,daylightPlaying:false,seated:false,solar:{...DEFAULT_SOLAR},solarEdited:false,playbackRate:600,altitude:0,azimuth:0,improvements:true};
 const time=(hour:number)=>{const t=Math.min(86399,Math.floor(hour*3600));return [Math.floor(t/3600),Math.floor(t/60)%60].map(n=>String(n).padStart(2,'0')).join(':')};
 const TERMS:Record<string,string>={'03-20':'春分','03-21':'春分','06-21':'夏至','06-22':'夏至','09-22':'秋分','09-23':'秋分','12-21':'冬至','12-22':'冬至'};
@@ -48,6 +50,7 @@ function App(){
  const [roof,setRoof]=useState(true),[reduced,setReduced]=useState(false),[fullscreen,setFullscreen]=useState(false);
  const [capture,setCapture]=useState<Capture|null>(null),[split,setSplit]=useState(50),[message,setMessage]=useState('');
  const [joy,setJoy]=useState({x:0,y:0});
+ const [filmStatus,setFilmStatus]=useState(filmShot?'film-loading':'');
  const [cover,setCover]=useState(startOnCover),[title,setTitle]=useState<{chapter:Chapter;key:number}|null>(null);
  const chapter=chapterOf(state.view),content=chapters[chapter];
  // Dark surroundings where the picture is dark: the Buddha hall (a white carving in a dim room, as the
@@ -80,6 +83,11 @@ function App(){
   if(modal){s?.keys.clear();if(s)s.paused=true;dialog.current?.showModal()}
   else {dialog.current?.close();if(s)s.paused=false}
  },[modal]);
+ useEffect(()=>{
+  if(!ready||!filmShot||!engine.current)return;const s=engine.current;
+  const num=(k:string)=>params.get(k)!==null&&Number.isFinite(Number(params.get(k)))?Number(params.get(k)):undefined;
+  import('./film').then(m=>m.runFilm(s,filmShot,{from:num('from'),to:num('to'),ratio:num('ratio'),still:params.get('still')?.split(',').map(Number).filter(Number.isFinite),status:setFilmStatus})).catch(e=>{console.error(e);setFilmStatus('film-error '+String(e))});
+ },[ready]);
  useEffect(()=>{document.querySelector('meta[name=theme-color]')?.setAttribute('content',dark?'#131312':'#f5f4f0')},[dark]);
  useEffect(()=>{if(!title)return;const t=setTimeout(()=>setTitle(null),3600);return()=>clearTimeout(t)},[title]);
  useEffect(()=>{const f=()=>setFullscreen(!!document.fullscreenElement);document.addEventListener('fullscreenchange',f);return()=>document.removeEventListener('fullscreenchange',f)},[]);
@@ -122,7 +130,8 @@ function App(){
  const stopJoy=()=>{setJoy({x:0,y:0});if(engine.current)engine.current.joy={x:0,y:0}};
  const moveJoy=(e:React.PointerEvent<HTMLDivElement>)=>{const r=e.currentTarget.getBoundingClientRect();let x=(e.clientX-r.left-r.width/2)/32,y=(e.clientY-r.top-r.height/2)/32;const d=Math.hypot(x,y);if(d>1){x/=d;y/=d}setJoy({x,y});if(engine.current)engine.current.joy={x,y}};
  const altered=state.view==='section'?'沿中轴剖开 · 光照按完整建筑计算':!roof?'屋顶已隐藏':'';
- return <main className={`app ${capture?'comparing':''} ${dark?'dark':''} ${cover?'cover':''}`}>
+ return <main className={`app ${capture?'comparing':''} ${dark?'dark':''} ${cover?'cover':''} ${filmShot?'film':''}`}>
+  {filmShot&&<output className="film-status">{filmStatus}</output>}
   <header className="masthead">
    <button className="brand" onClick={toCover} aria-label="寺 · 光与空间，回到开篇"><span className="brand-mark">寺</span><span className="brand-name">光与空间</span></button>
    <p className="state-note" aria-live="polite">{altered}</p>

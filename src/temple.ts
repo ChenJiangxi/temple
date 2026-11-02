@@ -594,7 +594,7 @@ export class TempleScene {
   const h=this.floorAt(this.camera.position.x,this.camera.position.z,feet)+this.eyeHeight;this.camera.position.y=THREE.MathUtils.lerp(this.camera.position.y,h,Math.min(1,dt*14));
  }
  animate=(ms:number)=>{
-  if(this.disposed)return;this.frame=requestAnimationFrame(this.animate);this.watchFrameRate(ms);const elapsed=Math.max(0,(ms-this.last)/1000);const dt=Math.min(elapsed,.04);this.last=ms;this.time=ms/1000;
+  if(this.disposed)return;this.frame=requestAnimationFrame(this.animate);if(this.film)return;this.watchFrameRate(ms);const elapsed=Math.max(0,(ms-this.last)/1000);const dt=Math.min(elapsed,.04);this.last=ms;this.time=ms/1000;
   if(this.transition){const tr=this.transition;const t=clamp((this.time-tr.start)/tr.duration,0,1),e=t*t*(3-2*t);this.camera.position.lerpVectors(tr.from,tr.to,e);
    // Ease the lens on a log scale so long-lens views do not snap.
    this.camera.fov=Math.exp(THREE.MathUtils.lerp(Math.log(tr.fovFrom),Math.log(tr.fovTo),e));this.camera.updateProjectionMatrix();const look=new THREE.Vector3().lerpVectors(tr.lookFrom,tr.lookTo,e);this.camera.lookAt(look);
@@ -616,6 +616,28 @@ export class TempleScene {
   this.adaptExposure();
   this.atmosphere.render();
  };
+ // Film rendering (development aid, ?film=, see film.ts): the render loop stops and film.ts drives
+ // every frame with a fixed time step, its own camera, clock and date, at a fixed output size.
+ film=false;
+ filmStart(w:number,h:number,ratio:number){
+  this.film=true;this.stopGuide();this.transition=null;this.keys.clear();this.orbit.enabled=false;this.mode='orbit';
+  this.applyQuality(2);this.renderer.setPixelRatio(ratio);this.renderer.setSize(w,h,false);this.atmosphere.setSize(w,h);
+  skyUniforms.uSkyEnabled.value=1;
+ }
+ filmDate(date:string){this.setDate(date)}
+ filmSun(hour:number,playing:boolean){this.daylightPlaying=playing;this.playbackRate=playing?600:1;this.setSun(hour)}
+ filmCamera(view:ViewId,pos:number[],target:number[],fov:number){
+  if(this.view!==view){this.view=view;this.updateVisibility()}
+  this.camera.position.set(pos[0],pos[1],pos[2]);this.camera.fov=fov;this.applyLens();this.camera.lookAt(target[0],target[1],target[2]);this.camera.updateMatrixWorld();
+ }
+ filmFrame(dt:number,playing:boolean){
+  this.sky.mesh.position.copy(this.camera.position);this.fitDepth();
+  const p=this.camera.position;this.setShadowHalf(this.view==='section'?8:Math.abs(p.x)<3.4&&Math.abs(p.z)<3.4&&p.y<6.6?5.5:28);
+  this.siteTick(dt,this.toSunScratch.subVectors(this.sun.position,this.sun.target.position).normalize(),this.sunColorScratch.copy(this.sun.color).multiplyScalar(Math.min(1.4,this.sun.intensity/2.4)));
+  bounceUniforms.uBounceMix.value=Math.min(1,bounceUniforms.uBounceMix.value+dt/.6);
+  solarShadowUniforms.uSolarMinTexels.value=playing?1.8:1;
+  this.adaptExposure();this.atmosphere.render();
+ }
  adaptExposure(){
   const measured=SKY_BOUNCE+(1-SKY_BOUNCE)*this.skyField.sample(this.camera.position);
   const fill=THREE.MathUtils.lerp(1,measured,skyUniforms.uSkyEnabled.value);

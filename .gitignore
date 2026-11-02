@@ -7,3 +7,10 @@ evidence/
 revisions/
 # The author's original uploads (raw DWG files) are not published; reference/cad holds the extracted data.
 reference/delivery-2026-10-26/
+# Film renders (Motion-JPEG parts, previews, the encoded film, the music render) stay local.
+film/parts/
+film/shots/
+film/preview*/
+film/*.mp4
+film/*.wav
+film/*.png

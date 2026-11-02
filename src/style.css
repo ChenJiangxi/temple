@@ -158,6 +158,11 @@ details.fine a{color:var(--ink)}
 .app.cover .loading{background:#0e1016;color:rgba(243,241,234,.6)}
 .app.cover .spinner{border-color:rgba(243,241,234,.18);border-top-color:rgba(243,241,234,.8)}
 
+/* Film rendering (development aid): the 3D frame fills the window; nothing else shows. */
+.app.film{grid-template-rows:minmax(0,1fr);padding:0}
+.app.film .masthead,.app.film .controls,.app.film .cover-page,.app.film .intertitle{display:none}
+.film-status{position:fixed;left:8px;top:8px;z-index:10;padding:2px 6px;background:#fff;color:#000;font:12px/1.4 ui-monospace,monospace}
+
 /* Chapter title: shown over the picture for a few seconds on entering a chapter, then gone. */
 .intertitle{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:var(--s12) 40px;color:#f6f4ee;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.45),0 0 16px rgba(0,0,0,.4);background:linear-gradient(to top,rgba(10,10,12,.72),rgba(10,10,12,.42) 22%,rgba(10,10,12,0) 46%);animation:intertitle 3.6s ease forwards}
 .intertitle h2{margin:0;font-family:var(--serif);font-size:clamp(30px,3.2vw,44px);font-weight:400;letter-spacing:.3em}
