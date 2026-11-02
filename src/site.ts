@@ -12,6 +12,7 @@ import { Water } from 'three/addons/objects/Water.js';
  * approach to the entrance stay open.
  */
 const GROUND_Y=-.12;
+const WATER_BODY=new THREE.Color(0x21302d);
 let seed=23;const rand=()=>(seed=(seed*16807)%2147483647)/2147483647;
 
 /** A tapering branch structure: each limb bends slightly as it grows and splits two or three
@@ -360,7 +361,10 @@ export function createSite(patch:(m:THREE.Material)=>void){
  /** Per frame: ripple time and the sun, so glints and colour follow the computed sun. */
  const tick=(dt:number,toSun:THREE.Vector3,sun:THREE.Color)=>{
   burner.tick(dt,sun);
-  for(const p of pools){if(!p.mirror.visible)continue;const u=(p.mirror.material as THREE.ShaderMaterial).uniforms;u.time.value+=dt*.35;u.sunDirection.value.copy(toSun);u.sunColor.value.copy(sun)}
+  // The shader's water-body colour ('scatter') is unlit: scale it with the daylight, or at night
+  // the raised exposure turns the pools into flat glowing teal. (Sky reflection stays as is.)
+  const daylight=THREE.MathUtils.clamp(.2126*sun.r+.7152*sun.g+.0722*sun.b,.04,1);
+  for(const p of pools){if(!p.mirror.visible)continue;const u=(p.mirror.material as THREE.ShaderMaterial).uniforms;u.time.value+=dt*.35;u.sunDirection.value.copy(toSun);u.sunColor.value.copy(sun);u.waterColor.value.copy(WATER_BODY).multiplyScalar(daylight)}
  };
  const setQuality=(level:number)=>{for(const p of pools){p.mirror.visible=level===2;p.plain.visible=level<2}};
  setQuality(2);

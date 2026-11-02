@@ -2,7 +2,8 @@
 # Renders every part of the film through the shared browser (hermit-browser), in runs short
 # enough for its 5-minute limit and downloads under its ~100 MB cap, into parts/.
 cd /Users/macmini003/writing
-URL=https://hermit-preview-macmini003.zhinan.tech/p/pv__fCrs87aNEKK6xOBi_pX-Q/
+# A static server for dist/ (python3 -m http.server 4191 --bind 127.0.0.1 -d dist).
+URL=${FILM_URL:-http://127.0.0.1:4191/}
 run(){ # name count items-json
   for attempt in 1 2; do
     hermit-browser test projects/temple-walkthrough/scripts/v10/film.js --timeout 300000 --expect-downloads $2 --download-timeout 280000 \
@@ -20,10 +21,12 @@ PY
     [ $? -eq 0 ] && return 0; hermit-browser stop >/dev/null 2>&1
   done; echo "RUN $1 FAILED"
 }
-run r1 3 '["film=open","film=day&from=0&to=240","film=day&from=240&to=480"]'
-run r2 4 '["film=buddha&from=0&to=180","film=buddha&from=180&to=360","film=section&from=0&to=120","film=section&from=120&to=240"]'
-run r3 4 '["film=sutra&from=0&to=105","film=sutra&from=105&to=210","film=sutra&from=210&to=315","film=sutra&from=315&to=420"]'
-run r4 2 '["film=seasons&from=0&to=150","film=seasons&from=150&to=300"]'
-run r5 2 '["film=seasons&from=300&to=450","film=seasons&from=450&to=540"]'
-run r6 3 '["film=night&from=0&to=150","film=night&from=150&to=300","film=night&from=300&to=450"]'
+run r1 4 '["film=open","film=morning&from=0&to=135","film=morning&from=135&to=270","film=column&from=0&to=90"]'
+run r2 4 '["film=column&from=90&to=180","film=afternoon&from=0&to=135","film=afternoon&from=135&to=270","film=upper"]'
+run r3 4 '["film=sutra&from=0&to=135","film=sutra&from=135&to=270","film=buddha&from=0&to=135","film=buddha&from=135&to=270"]'
+run r4 2 '["film=seasons&from=0&to=130","film=seasons&from=130&to=260"]'
+run r5 2 '["film=seasons&from=260&to=390","film=seasons&from=390&to=510"]'
+run r6 4 '["film=section&from=0&to=120","film=section&from=120&to=240","film=dusk&from=0&to=135","film=dusk&from=135&to=270"]'
+run r7 2 '["film=plan","film=ground"]'
+run r8 2 '["film=gate&from=0&to=180","film=gate&from=180&to=360"]'
 echo ALL-RUNS-FINISHED

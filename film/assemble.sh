@@ -4,8 +4,8 @@
 # encodes H.264 1080p30. Usage: ./assemble.sh  ->  temple-promo-1080p.mp4
 set -euo pipefail
 cd "$(dirname "$0")"
-SHOTS=(open day sutra buddha seasons section night)
-SECS=(6 16 14 12 18 8 15)
+SHOTS=(open morning afternoon column sutra buddha upper seasons section dusk plan ground gate)
+SECS=(6 9 9 6 9 9 6 17 8 9 7 7 12)
 X=0.8
 inputs=(); for s in "${SHOTS[@]}"; do cat $(ls parts/film-$s-*.mjpeg | sort) > shots/$s.mjpeg; inputs+=(-f mjpeg -framerate 30 -i shots/$s.mjpeg); done
 filter=""; prev="[0:v]"; offset=0
@@ -15,7 +15,7 @@ for i in $(seq 1 $((${#SHOTS[@]}-1))); do
 done
 total=$(echo "$offset + ${SECS[$((${#SECS[@]}-1))]}" | bc)
 filter+="${prev}fade=t=in:st=0:d=1.2,fade=t=out:st=$(echo "$total - 1.8" | bc):d=1.8,format=yuv420p[v];"
-filter+="[${#SHOTS[@]}:a]volume=1.2dB,alimiter=limit=0.84:level=false,afade=t=out:st=$(echo "$total - 2" | bc):d=2[a]"
+filter+="[${#SHOTS[@]}:a]volume=${MUSIC_GAIN:-1.2}dB,alimiter=limit=0.84:level=false,afade=t=out:st=$(echo "$total - 2" | bc):d=2[a]"
 ffmpeg -loglevel error -y "${inputs[@]}" -i music.wav -filter_complex "$filter" -map "[v]" -map "[a]" \
   -c:v libx264 -preset slow -crf 18 -r 30 -c:a aac -b:a 192k -t "$total" -movflags +faststart temple-promo-1080p.mp4
 echo "total ${total}s"

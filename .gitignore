@@ -18,3 +18,5 @@ film/*.jpg
 film/review/
 film/check/
 film/test/
+film/*.zip
+film/preview/

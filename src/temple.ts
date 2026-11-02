@@ -628,7 +628,7 @@ export class TempleScene {
  filmSun(hour:number,playing:boolean){this.daylightPlaying=playing;this.playbackRate=playing?600:1;this.setSun(hour)}
  filmCamera(view:ViewId,pos:number[],target:number[],fov:number){
   if(this.view!==view){this.view=view;this.updateVisibility()}
-  this.camera.position.set(pos[0],pos[1],pos[2]);this.camera.fov=fov;this.applyLens();this.camera.lookAt(target[0],target[1],target[2]);this.camera.updateMatrixWorld();
+  this.camera.position.set(pos[0],pos[1],pos[2]);this.orbit.target.set(target[0],target[1],target[2]);this.camera.fov=fov;this.applyLens();this.camera.lookAt(target[0],target[1],target[2]);this.camera.updateMatrixWorld();
  }
  filmFrame(dt:number,playing:boolean){
   this.sky.mesh.position.copy(this.camera.position);this.fitDepth();

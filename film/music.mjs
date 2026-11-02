@@ -6,11 +6,14 @@
 // Usage: node music.mjs out.wav
 import { writeFileSync } from 'node:fs';
 
-const SR = 44100, LENGTH = 84.2 + 1.5, N = Math.ceil(LENGTH * SR);
+const SR = 44100, LENGTH = 104.4 + 1.5, N = Math.ceil(LENGTH * SR);
 const L = new Float32Array(N), R = new Float32Array(N);
 let seed = 20261102; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
-const T = { dawn: 0, day: 5.2, sutra: 20.4, buddha: 33.6, seasons: 44.8, section: 62.0, night: 69.2, end: 84.2 };
+// Shot starts in the cut (13 shots, 0.8 s dissolves): dawn | morning, afternoon | column, sutra |
+// buddha, upper | seasons | section | dusk, forecourt, ground, gate.
+const T = { dawn: 0, day: 5.2, sutra: 21.6, buddha: 35.0, upper: 43.2, seasons: 48.4, section: 64.6, night: 71.8, forecourt: 80.0, ground: 86.2, gate: 92.4, card: 97.9, end: 104.4 };
+const SEASON = (T.section - T.seasons) / 4;
 
 function add(buf, start, gainL, gainR) { const i0 = Math.round(start * SR); for (let i = 0; i < buf.length && i0 + i < N; i++) { if (i0 + i < 0) continue; L[i0 + i] += buf[i] * gainL; R[i0 + i] += buf[i] * gainR; } }
 const pan = (p) => [Math.cos((p + 1) * Math.PI / 4), Math.sin((p + 1) * Math.PI / 4)];
@@ -48,8 +51,8 @@ function bell(midi, t, vel = .6, seconds = 11) {
 /** Drone: root and fifth with soft partials and slow beating, crossfading between chords. */
 const chords = [ // [start, root midi, fifth midi]
   [T.dawn, 38, 45], [T.day + 6.5, 41, 48], [T.day + 12.5, 38, 45], [T.sutra, 43, 50], [T.buddha, 34, 41],
-  [T.seasons, 38, 45], [T.seasons + 4.3, 41, 48], [T.seasons + 8.6, 43, 50], [T.seasons + 12.9, 45, 52],
-  [T.section, 38, 45], [T.night, 34, 41], [T.night + 8.5, 38, 45],
+  [T.seasons, 38, 45], [T.seasons + SEASON, 41, 48], [T.seasons + 2 * SEASON, 43, 50], [T.seasons + 3 * SEASON, 45, 52],
+  [T.section, 38, 45], [T.night, 34, 41], [T.forecourt, 38, 45], [T.ground, 41, 48], [T.gate, 34, 41], [T.card, 38, 45],
 ];
 function drone() {
   const fade = 2.4;
@@ -80,15 +83,22 @@ for (let t = T.day + .6; t < T.sutra - .6;) { const k = (t - T.day) / (T.sutra -
 // Sutra on the columns: harmonics high up, like light through the glyphs; a few low notes.
 for (let t = T.sutra + .4; t < T.buddha - .8;) { harmonic(near(74 + rnd() * 10), t, .4 + rnd() * .35, (rnd() - .5) * 1.2); if (rnd() < .3) pluck(near(50 + rnd() * 6), t + .5, .35, 0); t += 1.4 + rnd() * 1.3; }
 // The Buddha: the stone chime, then near silence.
-bell(57, T.buddha + .3, .55, 12); pluck(62, T.buddha + 3.4, .4, .2); harmonic(81, T.buddha + 5.6, .35, -.3); pluck(57, T.buddha + 7.9, .35, -.1); harmonic(86, T.buddha + 9.4, .3, .4);
+bell(57, T.buddha + .3, .55, 12); pluck(62, T.buddha + 3.4, .4, .2); harmonic(81, T.buddha + 5.6, .35, -.3); pluck(57, T.buddha + 7.6, .35, -.1);
+// The Buddha from the upper floor: two high harmonics, a low note.
+harmonic(86, T.upper + .5, .32, .4); pluck(50, T.upper + 2.2, .35, -.2); harmonic(84, T.upper + 3.9, .28, .2);
 // Seasons: a gentle figure, one chord per season (spring, summer, autumn, winter).
 const figures = [[62, 69, 74, 72], [65, 72, 77, 74], [67, 74, 79, 77], [69, 74, 81, 79]];
-figures.forEach((fig, s) => { const t0 = T.seasons + .3 + s * 4.3; fig.forEach((m, i) => pluck(m, t0 + i * 1.05 + (rnd() - .5) * .05, .38 + .12 * (i === 0 ? 1 : 0), -.4 + i * .27)); if (s === 3) harmonic(86, t0 + 3.4, .3, .5); });
+figures.forEach((fig, s) => { const t0 = T.seasons + .3 + s * SEASON; fig.forEach((m, i) => pluck(m, t0 + i * SEASON / 4 + (rnd() - .5) * .05, .38 + .12 * (i === 0 ? 1 : 0), -.4 + i * .27)); if (s === 3) harmonic(86, t0 + 3.4, .3, .5); });
 // Section: three notes, a held breath.
 pluck(57, T.section + .5, .4, -.2); pluck(62, T.section + 2.6, .38, .2); harmonic(81, T.section + 4.8, .3, 0);
-// Night: low and slow; the chime under the closing title; the last low D.
-for (const [dt, m, v] of [[.6, 57, .4], [3.2, 55, .38], [5.9, 53, .36], [8.6, 50, .4]]) pluck(m, T.night + dt, v, (rnd() - .5) * .6);
-bell(62, T.night + 9.4, .42, 9); harmonic(74, T.night + 11.2, .28, .3); pluck(38 + 12, T.night + 12.0, .3, 0);
+// Night: low and slow at dusk; harmonics again when the sutra light falls on the forecourt (the
+// same sound as the sutra on the columns by day); sparse notes on the ground; the chime under the
+// closing title; the last low D.
+for (const [dt, m, v] of [[.6, 57, .4], [3.2, 55, .38], [5.9, 53, .36]]) pluck(m, T.night + dt, v, (rnd() - .5) * .6);
+for (let t = T.forecourt + .3; t < T.ground - .4;) { harmonic(near(72 + rnd() * 9), t, .32 + rnd() * .2, (rnd() - .5) * 1.2); t += 1.5 + rnd() * .9; }
+for (const [dt, m, v] of [[.5, 50, .38], [2.6, 57, .34], [4.6, 55, .32]]) pluck(m, T.ground + dt, v, (rnd() - .5) * .5);
+pluck(53, T.gate + .6, .34, -.2); pluck(50, T.gate + 3.0, .36, .1);
+bell(62, T.card + .2, .42, 9); harmonic(74, T.card + 2.0, .28, .3); pluck(50, T.card + 3.2, .3, 0);
 
 // --- room: a small Freeverb (8 combs + 4 allpasses per side) ---
 function reverb(input, spread) {
