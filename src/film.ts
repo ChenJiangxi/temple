@@ -99,6 +99,10 @@ export const SHOTS: Shot[] = [
   { id: 'gate', no: '16', title: '院门', subtitle: '出院门回望', seconds: beats(12), view: 'approach', date: EQ, hour: clock(19.4, 19.5, beats(12)),
     cam: move({ pos: [.9, 1.6, 17.5], target: [0, 1.7, 0], fov: 52 }, { pos: [.3, 1.6, 30.5], target: [0, 1.9, 0], fov: 44 }, beats(12)),
     ink: 'light', playing: false, sun: false, card: { kind: 'close', from: 4.2, to: beats(12) } },
+  // Not in the film: the portrait cover (blue hour, the whole building, the sutra on the forecourt;
+  // the site's own opening view, with a level camera so verticals stay vertical).
+  { id: 'cover', no: '', title: '', subtitle: '', seconds: 2, view: 'gallery', date: EQ, hour: () => 18.88,
+    cam: () => ({ pos: [.6, 1.0, 16], target: [0, 1.0, 0], fov: 60 }), ink: 'light', playing: false, sun: false },
 ];
 
 const TERMS: [string, string][] = [['01-05', '小寒'], ['01-20', '大寒'], ['02-04', '立春'], ['02-18', '雨水'], ['03-05', '惊蛰'], ['03-20', '春分'], ['04-05', '清明'], ['04-20', '谷雨'], ['05-05', '立夏'], ['05-21', '小满'], ['06-05', '芒种'], ['06-21', '夏至'], ['07-07', '小暑'], ['07-23', '大暑'], ['08-07', '立秋'], ['08-23', '处暑'], ['09-07', '白露'], ['09-23', '秋分'], ['10-08', '寒露'], ['10-23', '霜降'], ['11-07', '立冬'], ['11-22', '小雪'], ['12-07', '大雪'], ['12-21', '冬至']];
