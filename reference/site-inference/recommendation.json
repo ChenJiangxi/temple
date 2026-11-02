@@ -1,0 +1,174 @@
+{
+ "profileWindow": [
+  37,
+  64.5
+ ],
+ "profileMid": 50.75,
+ "lateralWindow": [
+  -9,
+  6.5
+ ],
+ "latitudeWindow": [
+  25.5,
+  53
+ ],
+ "latitudeCentre": 39.25,
+ "fillWholeFigureLatitude": 26.5,
+ "reports": [
+  {
+   "site": {
+    "name": "窗口中心纬度",
+    "latitude": 39.25,
+    "longitude": 116.41,
+    "utcOffset": 8,
+    "entranceBearing": 180
+   },
+   "equinox": {
+    "solarNoon": "12:22",
+    "altitude": 50.6,
+    "profile": 50.6,
+    "completeFrom": "12:06",
+    "completeTo": "12:45",
+    "completeMinutes": 40,
+    "frontRowLandingY": 2.65,
+    "columnCoverage": 0.53
+   },
+   "completeAtNoonDates": [
+    "02-12—04-27",
+    "08-16—10-30"
+   ],
+   "columns90Dates": [
+    "01-01—01-18",
+    "11-24—12-31"
+   ],
+   "columnSamples": [
+    {
+     "date": "2026-01-05",
+     "max": 0.93,
+     "window90": "09:46–14:54"
+    },
+    {
+     "date": "2026-01-20",
+     "max": 0.9,
+     "window90": "-"
+    },
+    {
+     "date": "2026-12-06",
+     "max": 0.93,
+     "window90": "09:32–14:40"
+    },
+    {
+     "date": "2026-12-21",
+     "max": 0.94,
+     "window90": "09:36–14:48"
+    }
+   ],
+   "columnMaxOfYear": 0.94
+  },
+  {
+   "site": {
+    "name": "北京（示例城市）",
+    "latitude": 39.9,
+    "longitude": 116.41,
+    "utcOffset": 8,
+    "entranceBearing": 180
+   },
+   "equinox": {
+    "solarNoon": "12:22",
+    "altitude": 49.9,
+    "profile": 49.9,
+    "completeFrom": "12:05",
+    "completeTo": "12:46",
+    "completeMinutes": 42,
+    "frontRowLandingY": 2.72,
+    "columnCoverage": 0.54
+   },
+   "completeAtNoonDates": [
+    "02-14—04-29",
+    "08-13—10-28"
+   ],
+   "columns90Dates": [
+    "01-01—01-20",
+    "11-22—12-31"
+   ],
+   "columnSamples": [
+    {
+     "date": "2026-01-05",
+     "max": 0.94,
+     "window90": "09:44–14:54"
+    },
+    {
+     "date": "2026-01-20",
+     "max": 0.9,
+     "window90": "09:56–14:54"
+    },
+    {
+     "date": "2026-12-06",
+     "max": 0.94,
+     "window90": "09:30–14:40"
+    },
+    {
+     "date": "2026-12-21",
+     "max": 0.95,
+     "window90": "09:36–14:50"
+    }
+   ],
+   "columnMaxOfYear": 0.95
+  },
+  {
+   "site": {
+    "name": "旧示例 30°N",
+    "latitude": 30,
+    "longitude": 120,
+    "utcOffset": 8,
+    "entranceBearing": 180
+   },
+   "equinox": {
+    "solarNoon": "12:08",
+    "altitude": 59.8,
+    "profile": 59.8,
+    "completeFrom": "11:55",
+    "completeTo": "12:26",
+    "completeMinutes": 32,
+    "frontRowLandingY": 1.5,
+    "columnCoverage": 0.27
+   },
+   "completeAtNoonDates": [
+    "01-01—04-01",
+    "09-11—12-12",
+    "12-31—12-31"
+   ],
+   "columns90Dates": [],
+   "columnSamples": [
+    {
+     "date": "2026-01-05",
+     "max": 0.82,
+     "window90": "-"
+    },
+    {
+     "date": "2026-01-20",
+     "max": 0.77,
+     "window90": "-"
+    },
+    {
+     "date": "2026-12-06",
+     "max": 0.81,
+     "window90": "-"
+    },
+    {
+     "date": "2026-12-21",
+     "max": 0.83,
+     "window90": "-"
+    }
+   ],
+   "columnMaxOfYear": 0.83
+  }
+ ],
+ "geometryForEquinoxColumns": {
+  "profileAngle": 50.75,
+  "currentGap": 1.47,
+  "gapNeededFor95": 0.46,
+  "glyphTopNeededFor95": 7.05,
+  "currentGlyphTop": 5.82
+ }
+}

@@ -1,0 +1,13 @@
+await page.goto(args.url);
+await page.getByRole('button',{name:'调整日照和屋顶',exact:true}).click();
+await page.getByLabel('减少过渡动画').click();
+await page.getByRole('button',{name:'关闭设置',exact:true}).click();
+await page.getByRole('button',{name:'进入二层静坐',exact:true}).click();
+await page.getByRole('button',{name:'03 玉佛',exact:true}).click();
+const front=await page.screenshot({name:'v7-jade-real-geometry-front'});
+await page.getByRole('button',{name:'15:00',exact:true}).click();
+const afternoon=await page.screenshot({name:'v7-jade-afternoon-light'});
+await page.getByRole('button',{name:'返回建筑全貌',exact:true}).click();
+await page.getByRole('button',{name:'看二层布局',exact:true}).click();
+const side=await page.screenshot({name:'v7-jade-profile-in-building'});
+return {shots:[front,afternoon,side],diagnostics:await page.diagnostics()};

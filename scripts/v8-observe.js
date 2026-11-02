@@ -1,0 +1,13 @@
+await page.goto(args.url);
+await page.getByRole('button',{name:'柱面近看',exact:true}).click();
+const column=await page.screenshot({name:'v8-column-light'});
+await page.getByRole('button',{name:'记下此刻',exact:true}).click();
+await page.getByRole('button',{name:'推后15分钟',exact:true}).click();
+await page.getByRole('button',{name:'推后15分钟',exact:true}).click();
+await page.getByRole('button',{name:'推后15分钟',exact:true}).click();
+await page.getByRole('button',{name:'推后15分钟',exact:true}).click();
+const comparison=await page.screenshot({name:'v8-noon-one-hour-comparison'});
+await page.getByRole('button',{name:'02 天光照佛',exact:true}).click();
+await page.getByRole('button',{name:'12:00',exact:true}).click();
+const buddha=await page.screenshot({name:'v8-buddha-daylight'});
+return {shots:[column,comparison,buddha],diagnostics:await page.diagnostics()};

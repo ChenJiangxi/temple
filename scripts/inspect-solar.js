@@ -1,0 +1,10 @@
+await page.goto(args.url);
+await page.getByRole('button',{name:'进入二层静坐'}).click();
+const morning=await page.screenshot({name:'v4-columns-0900'});
+await page.getByRole('button',{name:'12:00',exact:true}).click();
+const noon=await page.screenshot({name:'v4-columns-1200'});
+await page.getByRole('button',{name:'03 玉佛',exact:true}).click();
+const buddha=await page.screenshot({name:'v4-buddha-1200'});
+await page.getByRole('button',{name:'05 屋顶',exact:true}).click();
+const roof=await page.screenshot({name:'v4-roof-orientation'});
+return {shots:[morning,noon,buddha,roof],diagnostics:await page.diagnostics()};

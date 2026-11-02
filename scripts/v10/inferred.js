@@ -1,0 +1,11 @@
+const sleep=async ms=>{try{await page.waitForTimeout(ms)}catch{await new Promise(r=>setTimeout(r,ms))}};
+const ready=async()=>{const t0=Date.now();while(await page.getByText('正在准备空间与光影').count()>0&&Date.now()-t0<90000){await sleep(250)}await sleep(3500)};
+await page.goto(args.url);await ready();
+await page.screenshot({name:args.prefix+'home-equinox'});
+await page.locator('.chapter-nav button').nth(1).click();await sleep(2800);
+await page.screenshot({name:args.prefix+'jade-equinox'});
+await page.goto(args.url+'?scenario=winter-columns');await ready();
+await page.screenshot({name:args.prefix+'columns-winter'});
+await page.getByRole('button',{name:'二层静坐',exact:true}).click();await sleep(2800);
+await page.screenshot({name:args.prefix+'gallery-winter'});
+return {diagnostics:await page.diagnostics()};

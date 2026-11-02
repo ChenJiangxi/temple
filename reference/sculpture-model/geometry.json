@@ -1,0 +1,12 @@
+{
+  "source": "jade-relief-master.png",
+  "model": "depth-anything/Depth-Anything-V2-Small-hf",
+  "columns": 515,
+  "rows": 553,
+  "width_m": 4.1,
+  "height_m": 4.4,
+  "maximum_projection_m": 0.36,
+  "backing_depth_m": 0.18,
+  "method": "single continuous inferred depth surface; neutral jade material; no photographic color or luminance displacement",
+  "limitation": "Interpretive sculpture, not a measured scan or the original statue."
+}

@@ -1,0 +1,11 @@
+{
+  "source": "candidate-2/drawing.dxf",
+  "closed_outlines": 1495,
+  "bounds": [
+    109.011,
+    304.447,
+    200,
+    120
+  ],
+  "method": "original SPLINE/POLYLINE even-odd fill, duplicate HATCH excluded"
+}

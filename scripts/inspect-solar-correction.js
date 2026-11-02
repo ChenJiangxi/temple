@@ -1,0 +1,14 @@
+await page.getByRole('button',{name:'进入二层静坐'}).click();
+await page.getByRole('button',{name:'03 玉佛',exact:true}).click();
+await page.getByRole('button',{name:'12:00',exact:true}).click();
+const buddha=await page.screenshot({name:'v4-buddha-full-height'});
+await page.getByRole('button',{name:'04 静坐',exact:true}).click();
+await page.getByRole('button',{name:'地点、日期与朝向'}).click();
+await page.getByLabel('纬度（北为正）').fill('60');
+await page.getByRole('button',{name:'应用日照参数'}).click();
+const parameters=await page.screenshot({name:'v4-example-60N-parameters'});
+await page.getByRole('button',{name:'关闭设置'}).click();
+const columns=await page.screenshot({name:'v4-example-60N-columns'});
+await page.getByRole('button',{name:'05 屋顶',exact:true}).click();
+const roof=await page.screenshot({name:'v4-roof-final'});
+return {shots:[buddha,parameters,columns,roof],diagnostics:await page.diagnostics()};

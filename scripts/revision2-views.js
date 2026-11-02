@@ -1,0 +1,12 @@
+await page.goto(args.url);
+await page.getByRole('button',{name:'调整日照和屋顶'}).click();
+await page.getByLabel('减少过渡动画').click();
+await page.getByRole('button',{name:'关闭设置'}).click();
+await page.getByRole('button',{name:'04 静坐'}).click();
+await page.getByRole('button',{name:'09:00',exact:true}).click();
+const morning=await page.screenshot({name:'meditation-0900'});
+await page.getByRole('button',{name:'15:00',exact:true}).click();
+const afternoon=await page.screenshot({name:'meditation-1500'});
+await page.getByRole('button',{name:'03 玉佛'}).click();
+const jade=await page.screenshot({name:'monolithic-jade'});
+return {morning,afternoon,jade,errors:await page.diagnostics()};
