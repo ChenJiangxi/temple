@@ -225,6 +225,8 @@ function titleCard(c: CanvasRenderingContext2D, pen: Pen, kind: 'open' | 'close'
     pen.line(x => { x.moveTo(W / 2 - 150, cy + 30); x.lineTo(W / 2 + 150, cy + 30); }, 1, a);
     pen.text('temple.jessylab.cc', W / 2, cy + 70, 22, { align: 'center', spacing: 3, alpha: a });
     pen.text('根据原作 CAD 图纸与模型照片重建', W / 2, cy + 104, 15, { align: 'center', muted: true, spacing: 2, alpha: a });
+    // Credit required by the music's licence (CC BY 4.0).
+    pen.text('配乐 Clean Soul · Kevin MacLeod（incompetech.com）· CC BY 4.0', W / 2, cy + 134, 13, { align: 'center', muted: true, spacing: 1, alpha: a });
   }
 }
 
