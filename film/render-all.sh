@@ -21,12 +21,9 @@ PY
     [ $? -eq 0 ] && return 0; hermit-browser stop >/dev/null 2>&1
   done; echo "RUN $1 FAILED"
 }
-run r1 4 '["film=open","film=morning&from=0&to=135","film=morning&from=135&to=270","film=column&from=0&to=90"]'
-run r2 4 '["film=column&from=90&to=180","film=afternoon&from=0&to=135","film=afternoon&from=135&to=270","film=upper"]'
-run r3 4 '["film=sutra&from=0&to=135","film=sutra&from=135&to=270","film=buddha&from=0&to=135","film=buddha&from=135&to=270"]'
-run r4 2 '["film=seasons&from=0&to=130","film=seasons&from=130&to=260"]'
-run r5 2 '["film=seasons&from=260&to=390","film=seasons&from=390&to=510"]'
-run r6 4 '["film=section&from=0&to=120","film=section&from=120&to=240","film=dusk&from=0&to=135","film=dusk&from=135&to=270"]'
-run r7 2 '["film=plan","film=ground"]'
-run r8 2 '["film=gate&from=0&to=180","film=gate&from=180&to=360"]'
+run r1 4 '["film=open","film=sunrise","film=grille","film=column"]'
+run r2 4 '["film=sutra","film=floor","film=buddha","film=upper"]'
+run r3 4 '["film=roof","film=day","film=golden","film=section"]'
+run r4 3 '["film=seasons&from=0&to=124","film=seasons&from=124&to=247","film=dusk"]'
+run r5 4 '["film=plan","film=ground","film=gate&from=0&to=124","film=gate&from=124&to=247"]'
 echo ALL-RUNS-FINISHED

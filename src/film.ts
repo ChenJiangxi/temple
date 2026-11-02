@@ -22,7 +22,7 @@ type Shot = {
   callouts?: Callout[]; levels?: { from: number; to: number; side: 'left' | 'right'; marks: Level[] }; card?: { kind: 'open' | 'close'; from: number; to: number };
 };
 
-const W = 1920, H = 1080, FPS = 30, TOTAL_SHOTS = 12;
+const W = 1920, H = 1080, FPS = 30, TOTAL_SHOTS = 16;
 const SERIF = '"Songti SC","STSong","Noto Serif SC",serif', SANS = '"PingFang SC","Helvetica Neue",sans-serif';
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const sine = (k: number) => .5 - .5 * Math.cos(Math.PI * clamp01(k));
@@ -41,76 +41,62 @@ const year = (start: string, days: number, seconds: number) => (t: number) => {
 };
 const env = (t: number, a: number, b: number, c: number, d: number) => Math.min(clamp01((t - a) / (b - a)), 1 - clamp01((t - c) / (d - c)));
 
-/** The film, in order. Clock times are Beijing time (solar noon on 20 March is 12:22). */
+/** The film, in order (third cut: faster, and mostly held light rather than time-lapse). Shots are
+ * whole numbers of beats at 92 BPM plus the dissolve, so every cut falls on the beat of the music.
+ * Clock times are Beijing time (solar noon on 20 March is 12:22). Most shots hold the time nearly
+ * still and move the camera; only "一日" and "四季" run time. */
+export const BPM = 92, BEAT = 60 / BPM, XFADE = .4;
+const beats = (n: number) => n * BEAT + XFADE;
+const EQ = fixed('2026-03-20'), WINTER = fixed('2026-12-21');
 export const SHOTS: Shot[] = [
-  { id: 'open', no: '', title: '', subtitle: '', seconds: 6, view: 'approach', date: fixed('2026-03-20'), hour: clock(5.75, 6.55, 6),
-    cam: move({ pos: [1.7, 1.6, 21.3], target: [0, 1.6, 0], fov: 52 }, { pos: [1.3, 1.6, 19.4], target: [0, 1.6, 0], fov: 52 }, 6),
-    ink: 'light', playing: true, sun: false, card: { kind: 'open', from: .6, to: 5.4 } },
-  { id: 'morning', no: '01', title: '一日 · 上午', subtitle: '春分 · 日出到正午 · 北纬 39.9° · 入口朝南', seconds: 9, view: 'outside', date: fixed('2026-03-20'), hour: clock(6.45, 12.35, 9),
-    cam: orbit([0, 0, 2], 46, 38, .5, .36, 38, 9), ink: 'dark', playing: true, sun: true,
-    callouts: [
-      { at: [.9, 6, -1.4], label: '屋顶 · 万字开孔', sub: '17 处，天光照佛', dx: 250, dy: -120, from: 1.2, to: 5 },
-      { at: [-3.6, -.1, 11.5], label: '院 36 × 36 m', sub: '双池 · 香炉 · 东西廊', dx: -230, dy: 110, from: 4.6, to: 8.6 },
-    ] },
-  { id: 'afternoon', no: '02', title: '一日 · 午后', subtitle: '春分 · 正午到日落 · 人眼高度', seconds: 9, view: 'approach', date: fixed('2026-03-20'), hour: clock(12.35, 18.4, 9),
-    cam: move({ pos: [10.5, 1.6, 12.8], target: [0, 1.6, 0], fov: 50 }, { pos: [7.6, 1.6, 14.2], target: [0, 1.6, 0], fov: 50 }, 9),
-    ink: 'dark', playing: true, sun: true,
-    callouts: [
-      { at: [3, 6, 3], label: '殿 6 × 6 × 6 m', sub: '朱红格栅 · 白色内殿', dx: 260, dy: -70, from: 1.2, to: 7.8 },
-    ] },
-  { id: 'column', no: '03', title: '心经入柱 · 近看', subtitle: '冬至上午 · 字影沿柱面横移', seconds: 6, view: 'column', date: fixed('2026-12-21'), hour: clock(10.1, 11.3, 6),
-    cam: move({ pos: [.2, 3.2, 2.67], target: [.591, 3.2, 1.307], fov: 48 }, { pos: [.14, 3.3, 2.62], target: [.591, 3.25, 1.307], fov: 46 }, 6),
-    ink: 'light', playing: true, sun: true,
-    callouts: [
-      { at: [.42, 3.15, 1.55], label: '字影', sub: '曲面上变形、经过、离开', dx: -300, dy: -40, from: 1, to: 5.4 },
-    ] },
-  { id: 'sutra', no: '04', title: '心经入柱 · 整柱', subtitle: '冬至 · 太阳低，字影接近满柱', seconds: 9, view: 'columns', date: fixed('2026-12-21'), hour: clock(11.3, 14.6, 9),
-    cam: move({ pos: [1.12, 4.05, 2.74], target: [-.581, 4.05, 1.292], fov: 80 }, { pos: [.98, 3.9, 2.7], target: [-.62, 3.95, 1.29], fov: 77 }, 9),
-    ink: 'light', playing: true, sun: true,
-    callouts: [
-      { at: [.591, 4.2, 1.56], label: '圆柱 Ø500 · 四根', sub: '静止不动，字影在曲面上经过', dx: -330, dy: -90, from: .8, to: 4.6 },
-      { at: [-.4, 4.4, 2.98], label: '心经墙 · 字孔', sub: '原作 CAD 字形 1495 个', dx: 300, dy: 190, from: 4.4, to: 8.4 },
-    ] },
-  { id: 'buddha', no: '05', title: '天光照佛', subtitle: '春分正午 12:05 — 12:46 · 屋顶图案完整落在佛身', seconds: 9, view: 'jade', date: fixed('2026-03-20'), hour: clock(11.45, 12.45, 9),
-    cam: move({ pos: [.7, 1.65, 1.72], target: [0, 1.65, -2.55], fov: 84 }, { pos: [.5, 1.65, 1.42], target: [0, 1.72, -2.55], fov: 82 }, 9),
-    ink: 'light', playing: true, sun: true,
-    callouts: [
-      { at: [0, 3.15, -2.5], label: '白玉浮雕 · 通高', sub: '一层延伸至二层的单块玉壁', dx: 300, dy: -120, from: 1, to: 4.6 },
-      { at: [.32, 2.2, -2.42], label: '万字纹天光', sub: '随时刻改变位置与形状', dx: 330, dy: -40, from: 4.6, to: 8.4 },
-    ] },
-  { id: 'upper', no: '06', title: '天光照佛 · 二层', subtitle: '二层静坐处与佛首相对', seconds: 6, view: 'gallery', date: fixed('2026-03-20'), hour: clock(12.45, 13.1, 6),
-    cam: move({ pos: [.3, 3.95, 1.15], target: [0, 3.5, -2.45], fov: 54 }, { pos: [.24, 3.95, 1.02], target: [0, 3.55, -2.45], fov: 52 }, 6),
-    ink: 'light', playing: true, sun: true },
-  { id: 'seasons', no: '07', title: '四季', subtitle: '每日 14:30 · 一年', seconds: 17, view: 'outside', date: year('2026-03-05', 360, 17), hour: () => 14.5,
-    cam: move({ pos: [0, 10.5, 31], target: [0, 2.2, -3], fov: 42 }, { pos: [0, 9.4, 27.5], target: [0, 2.4, -3.2], fov: 42 }, 17),
-    ink: 'dark', playing: true, sun: true,
-    callouts: [
-      { at: [12.5, 7.5, -8.5], label: '银杏', sub: '春绿 · 秋黄 · 冬落', dx: 220, dy: -120, from: 2, to: 15.6 },
-    ] },
-  { id: 'section', no: '08', title: '剖透视 A—A', subtitle: '沿中轴剖开 · 光照按完整建筑计算', seconds: 8, view: 'section', date: fixed('2026-03-20'), hour: clock(11.6, 13.2, 8),
-    cam: move({ pos: [-14.2, 3.3, 4.9], target: [0, 2.7, -.1], fov: 40 }, { pos: [-13.2, 3.2, 4.5], target: [0, 2.7, -.1], fov: 40 }, 8),
-    ink: 'dark', playing: true, sun: true,
-    levels: { from: .6, to: 7.6, side: 'right', marks: [
+  { id: 'open', no: '', title: '', subtitle: '', seconds: beats(8), view: 'outside', date: EQ, hour: clock(6.0, 6.06, beats(8)),
+    // The site's own axonometric camera (the author's screenshot), turning a few degrees.
+    cam: orbit([0, 2.6, 0], 162.9, 100.5, .82, .73, 4, beats(8)), ink: 'light', playing: false, sun: false, card: { kind: 'open', from: .5, to: beats(8) - .3 } },
+  { id: 'sunrise', no: '01', title: '日出', subtitle: '春分 06:25 · 第一缕光擦过心经墙', seconds: beats(6), view: 'approach', date: EQ, hour: clock(6.43, 6.47, beats(6)),
+    cam: move({ pos: [4.2, 1.6, 18.5], target: [0, 1.7, 0], fov: 50 }, { pos: [3.1, 1.6, 17.2], target: [0, 1.7, 0], fov: 50 }, beats(6)), ink: 'light', playing: false, sun: true },
+  { id: 'grille', no: '02', title: '格栅', subtitle: '上午 · 低角度阳光穿过竖向格栅', seconds: beats(6), view: 'gallery', date: EQ, hour: clock(7.6, 7.62, beats(6)),
+    cam: move({ pos: [7.2, 1.6, 6.4], target: [2.2, 2.4, 1.2], fov: 40 }, { pos: [6.6, 1.65, 7.0], target: [2.0, 2.5, 1.4], fov: 40 }, beats(6)), ink: 'dark', playing: false, sun: true,
+    callouts: [{ at: [3.02, 3.4, 2.2], label: '竖向格栅', sub: '朱红钢板 · 光与影的间距', dx: 260, dy: -110, from: .7, to: beats(6) - .5 }] },
+  { id: 'column', no: '03', title: '心经入柱', subtitle: '冬至上午 · 字影落在圆柱上', seconds: beats(6), view: 'column', date: WINTER, hour: clock(10.5, 10.6, beats(6)),
+    cam: move({ pos: [.24, 3.2, 2.7], target: [.591, 3.2, 1.307], fov: 48 }, { pos: [.12, 3.32, 2.56], target: [.591, 3.26, 1.307], fov: 45 }, beats(6)), ink: 'light', playing: false, sun: true,
+    callouts: [{ at: [.42, 3.15, 1.55], label: '字影', sub: '曲面上变形、经过、离开', dx: -300, dy: -40, from: .7, to: beats(6) - .5 }] },
+  { id: 'sutra', no: '04', title: '心经入柱 · 整柱', subtitle: '冬至 · 太阳低，字影接近满柱', seconds: beats(6), view: 'columns', date: WINTER, hour: clock(11.2, 11.3, beats(6)),
+    cam: move({ pos: [1.16, 4.1, 2.76], target: [-.581, 4.05, 1.292], fov: 80 }, { pos: [.9, 3.9, 2.68], target: [-.62, 3.95, 1.29], fov: 77 }, beats(6)), ink: 'light', playing: false, sun: true },
+  { id: 'floor', no: '05', title: '静坐', subtitle: '二层 · 经文落在地面与蒲团上', seconds: beats(6), view: 'gallery', date: WINTER, hour: clock(11.5, 11.6, beats(6)),
+    cam: move({ pos: [1.55, 4.05, 2.75], target: [.1, 2.5, 1.85], fov: 56 }, { pos: [1.2, 4.0, 2.78], target: [-.3, 2.5, 1.9], fov: 56 }, beats(6)), ink: 'light', playing: false, sun: true,
+    callouts: [{ at: [.382, 2.62, 1.95], label: '蒲团', sub: '柱后静坐', dx: 260, dy: 90, from: .7, to: beats(6) - .5 }] },
+  { id: 'buddha', no: '06', title: '天光照佛', subtitle: '春分正午 · 屋顶万字纹完整落在佛身', seconds: beats(8), view: 'jade', date: EQ, hour: clock(12.36, 12.42, beats(8)),
+    cam: move({ pos: [.7, 1.65, 1.72], target: [0, 1.65, -2.55], fov: 84 }, { pos: [.45, 1.65, 1.36], target: [0, 1.74, -2.55], fov: 81 }, beats(8)), ink: 'light', playing: false, sun: true,
+    callouts: [{ at: [0, 3.15, -2.5], label: '白玉浮雕 · 通高', sub: '一层延伸至二层的单块玉壁', dx: 300, dy: -120, from: .8, to: beats(8) - .5 }] },
+  { id: 'upper', no: '07', title: '佛首', subtitle: '二层静坐处与佛首相对', seconds: beats(6), view: 'gallery', date: EQ, hour: clock(12.44, 12.48, beats(6)),
+    cam: move({ pos: [.3, 3.95, 1.15], target: [0, 3.5, -2.45], fov: 54 }, { pos: [.22, 3.95, .98], target: [0, 3.56, -2.45], fov: 51 }, beats(6)), ink: 'light', playing: false, sun: true },
+  { id: 'roof', no: '08', title: '天光', subtitle: '仰望屋顶 · 万字开孔与天空', seconds: beats(6), view: 'gallery', date: EQ, hour: clock(12.5, 12.52, beats(6)),
+    cam: move({ pos: [.9, 1.45, .95], target: [-.1, 5.6, -1.2], fov: 74 }, { pos: [.7, 1.45, .8], target: [.15, 5.6, -1.25], fov: 74 }, beats(6)), ink: 'light', playing: false, sun: true },
+  { id: 'day', no: '09', title: '一日', subtitle: '春分 · 日出到日落', seconds: beats(8), view: 'outside', date: EQ, hour: clock(6.6, 18.3, beats(8)),
+    cam: orbit([0, 0, 2], 46, 38, .5, .3, 38, beats(8)), ink: 'dark', playing: true, sun: true },
+  { id: 'golden', no: '10', title: '斜阳', subtitle: '春分 16:55 · 西晒把格栅染成暖色', seconds: beats(6), view: 'approach', date: EQ, hour: clock(16.9, 16.93, beats(6)),
+    cam: move({ pos: [-13.5, 1.6, 7.5], target: [0, 1.8, 0], fov: 46 }, { pos: [-12.6, 1.6, 9.4], target: [0, 1.8, 0], fov: 46 }, beats(6)), ink: 'dark', playing: false, sun: true },
+  { id: 'seasons', no: '11', title: '四季', subtitle: '每日 14:30 · 一年', seconds: beats(12), view: 'outside', date: year('2026-03-05', 360, beats(12)), hour: () => 14.5,
+    cam: move({ pos: [0, 10.5, 31], target: [0, 2.2, -3], fov: 42 }, { pos: [0, 9.4, 27.5], target: [0, 2.4, -3.2], fov: 42 }, beats(12)), ink: 'dark', playing: true, sun: true,
+    callouts: [{ at: [12.5, 7.5, -8.5], label: '银杏', sub: '春绿 · 秋黄 · 冬落', dx: 220, dy: -120, from: .8, to: beats(12) - .6 }] },
+  { id: 'section', no: '12', title: '剖透视 A—A', subtitle: '沿中轴剖开 · 光照按完整建筑计算', seconds: beats(6), view: 'section', date: EQ, hour: clock(12.3, 12.4, beats(6)),
+    cam: move({ pos: [-14.2, 3.3, 4.9], target: [0, 2.7, -.1], fov: 40 }, { pos: [-13.0, 3.2, 4.4], target: [0, 2.7, -.1], fov: 40 }, beats(6)), ink: 'dark', playing: false, sun: true,
+    levels: { from: .5, to: beats(6) - .4, side: 'right', marks: [
       { at: [0, 6, 3.05], label: '+6.000', name: '屋面外沿' },
       { at: [0, ARCH.roofLow, ARCH.rainZ], label: '+5.433', name: '屋面低点 · 雨链' },
       { at: [0, 2.5, 3.0], label: '+2.500', name: '二层 · 静坐' },
       { at: [0, 0, 3.1], label: '±0.000', name: '一层 · 礼佛' },
     ] } },
-  { id: 'dusk', no: '09', title: '夜', subtitle: '日落之后 · 灯从天沟向下，经文由内而外', seconds: 9, view: 'approach', date: fixed('2026-03-20'), hour: clock(18.2, 19.0, 9),
-    cam: move({ pos: [1.3, 1.6, 19.6], target: [0, 1.6, 0], fov: 52 }, { pos: [1.15, 1.6, 17.6], target: [0, 1.6, 0], fov: 52 }, 9),
-    ink: 'light', playing: true, sun: false },
-  { id: 'plan', no: '10', title: '夜 · 前院', subtitle: '经文投在前院 · 天沟北沿的灯穿过字孔', seconds: 7, view: 'outside', date: fixed('2026-03-20'), hour: clock(19.0, 19.2, 7),
-    cam: move({ pos: [3.2, 4.6, 14.2], target: [0, 0, 5.2], fov: 50 }, { pos: [2.4, 4.3, 13.2], target: [0, .1, 4.9], fov: 50 }, 7),
-    ink: 'light', playing: true, sun: false,
-    callouts: [
-      { at: [-.3, -.1, 7.6], label: '经文投光', sub: '白天光入殿，夜里光出殿', dx: -330, dy: -110, from: 1, to: 6.4 },
-    ] },
-  { id: 'ground', no: '11', title: '夜 · 地面', subtitle: '经文落在石板与水面上', seconds: 7, view: 'gallery', date: fixed('2026-03-20'), hour: clock(19.2, 19.4, 7),
-    cam: move({ pos: [1.2, .35, 11.2], target: [0, 1.6, 0], fov: 58 }, { pos: [.85, .42, 8.8], target: [0, 1.7, 0], fov: 58 }, 7),
-    ink: 'light', playing: true, sun: false },
-  { id: 'gate', no: '12', title: '夜 · 院门', subtitle: '出院门回望', seconds: 12, view: 'approach', date: fixed('2026-03-20'), hour: clock(19.4, 19.75, 12),
-    cam: move({ pos: [.9, 1.6, 17.5], target: [0, 1.7, 0], fov: 52 }, { pos: [.3, 1.6, 30.5], target: [0, 1.9, 0], fov: 44 }, 12),
-    ink: 'light', playing: true, sun: false, card: { kind: 'close', from: 5.5, to: 12 } },
+  { id: 'dusk', no: '13', title: '入夜', subtitle: '日落之后 · 灯从天沟向下', seconds: beats(6), view: 'approach', date: EQ, hour: clock(18.85, 18.9, beats(6)),
+    cam: move({ pos: [1.3, 1.6, 19.6], target: [0, 1.6, 0], fov: 52 }, { pos: [1.1, 1.6, 17.9], target: [0, 1.6, 0], fov: 52 }, beats(6)), ink: 'light', playing: false, sun: false },
+  { id: 'plan', no: '14', title: '前院', subtitle: '经文由内而外，投在石板上', seconds: beats(6), view: 'outside', date: EQ, hour: clock(19.15, 19.17, beats(6)),
+    cam: move({ pos: [3.2, 4.6, 14.2], target: [0, 0, 5.2], fov: 50 }, { pos: [2.3, 4.25, 13.0], target: [0, .1, 4.9], fov: 50 }, beats(6)), ink: 'light', playing: false, sun: false,
+    callouts: [{ at: [-.3, -.1, 7.6], label: '经文投光', sub: '白天光入殿，夜里光出殿', dx: -330, dy: -110, from: .6, to: beats(6) - .5 }] },
+  { id: 'ground', no: '15', title: '地面', subtitle: '经文落在石板与水面上', seconds: beats(6), view: 'gallery', date: EQ, hour: clock(19.25, 19.27, beats(6)),
+    cam: move({ pos: [1.2, .35, 11.2], target: [0, 1.6, 0], fov: 58 }, { pos: [.85, .42, 9.0], target: [0, 1.7, 0], fov: 58 }, beats(6)), ink: 'light', playing: false, sun: false },
+  { id: 'gate', no: '16', title: '院门', subtitle: '出院门回望', seconds: beats(12), view: 'approach', date: EQ, hour: clock(19.4, 19.5, beats(12)),
+    cam: move({ pos: [.9, 1.6, 17.5], target: [0, 1.7, 0], fov: 52 }, { pos: [.3, 1.6, 30.5], target: [0, 1.9, 0], fov: 44 }, beats(12)),
+    ink: 'light', playing: false, sun: false, card: { kind: 'close', from: 4.2, to: beats(12) } },
 ];
 
 const TERMS: [string, string][] = [['01-05', '小寒'], ['01-20', '大寒'], ['02-04', '立春'], ['02-18', '雨水'], ['03-05', '惊蛰'], ['03-20', '春分'], ['04-05', '清明'], ['04-20', '谷雨'], ['05-05', '立夏'], ['05-21', '小满'], ['06-05', '芒种'], ['06-21', '夏至'], ['07-07', '小暑'], ['07-23', '大暑'], ['08-07', '立秋'], ['08-23', '处暑'], ['09-07', '白露'], ['09-23', '秋分'], ['10-08', '寒露'], ['10-23', '霜降'], ['11-07', '立冬'], ['11-22', '小雪'], ['12-07', '大雪'], ['12-21', '冬至']];
@@ -225,14 +211,15 @@ function sunDiagram(pen: Pen, shot: Shot, t: number, alpha: number) {
 
 function titleCard(c: CanvasRenderingContext2D, pen: Pen, kind: 'open' | 'close', a: number) {
   c.save(); c.globalAlpha = a * .5;
-  const cy = kind === 'open' ? 190 : 170;
-  const g = c.createRadialGradient(W / 2, cy, 30, W / 2, cy, 520); g.addColorStop(0, 'rgba(6,7,10,.75)'); g.addColorStop(1, 'rgba(6,7,10,0)');
+  // Opening: in the left third, beside the building (the aerial view puts the building at the centre).
+  const cx = kind === 'open' ? 360 : W / 2, cy = kind === 'open' ? 470 : 170;
+  const g = c.createRadialGradient(cx, cy, 30, cx, cy, 520); g.addColorStop(0, 'rgba(6,7,10,.75)'); g.addColorStop(1, 'rgba(6,7,10,0)');
   c.fillStyle = g; c.fillRect(0, 0, W, H); c.restore();
   if (kind === 'open') {
-    pen.text('寺', W / 2, cy + 20, 128, { serif: true, align: 'center', alpha: a });
-    pen.text('光与空间', W / 2 + 8, cy + 72, 22, { align: 'center', spacing: 16, alpha: a });
-    pen.line(x => { x.moveTo(W / 2 - 120, cy + 98); x.lineTo(W / 2 + 120, cy + 98); }, 1, a);
-    pen.text('一座小寺的日照与四季', W / 2, cy + 130, 17, { align: 'center', muted: true, spacing: 4, alpha: a });
+    pen.text('寺', cx, cy + 20, 128, { serif: true, align: 'center', alpha: a });
+    pen.text('光与空间', cx + 8, cy + 72, 22, { align: 'center', spacing: 16, alpha: a });
+    pen.line(x => { x.moveTo(cx - 120, cy + 98); x.lineTo(cx + 120, cy + 98); }, 1, a);
+    pen.text('一座小寺的光与影', cx, cy + 130, 17, { align: 'center', muted: true, spacing: 4, alpha: a });
   } else {
     pen.text('寺 · 光与空间', W / 2 + 6, cy, 52, { serif: true, align: 'center', spacing: 12, alpha: a });
     pen.line(x => { x.moveTo(W / 2 - 150, cy + 30); x.lineTo(W / 2 + 150, cy + 30); }, 1, a);
