@@ -20,15 +20,16 @@ export function createImprovements(){
  function mesh(g:THREE.BufferGeometry,m:THREE.Material,p:number[],cast=true){
   applySolarShadows(m);const o=new THREE.Mesh(g,m);o.position.set(...p as [number,number,number]);o.castShadow=cast;o.receiveShadow=true;group.add(o);return o;
  }
- // Transparent guard on the void side; supports align behind the columns.
+ // Transparent guard on the void side.
  // Glazing buildup is unspecified. Its optical transmission is not calibrated.
  const y=ARCH.upperFloor,z=ARCH.platformBack+.015;
  // Frameless and as clear as possible: seen from the hall it lies across the Buddha's face (author:
  // the glass got in the way), so no bright top edge and almost no tint.
  const glazing=new THREE.MeshPhysicalMaterial({color:'#eef3f1',transparent:true,opacity:.045,roughness:.02,metalness:0,side:THREE.DoubleSide,depthWrite:false});
  const glass=mesh(new THREE.PlaneGeometry(4.16,PROPOSAL.guardHeight),glazing,[0,y+PROPOSAL.guardHeight/2,z],false);glass.name='transparent-guard-concept';
- mesh(new THREE.BoxGeometry(4.16,.055,.05),red,[0,y+.0275,z]);
- for(const c of ARCH.columns)rod([c.x,y+.035,z],[c.x,y+PROPOSAL.guardHeight,z],.008);
+ // Structural laminated glass (2 x 12 mm, SGP) standing in a steel channel cast into the slab edge,
+ // top flush with the floor: no posts, no rail. (Slim red posts used to stand behind the columns;
+ // from the Buddha side they read as stray red sticks, and the author asked what they were for.)
  // Leave both stair arrivals and the side doors open. Rails run 0.9 m above the line of the step
  // nosings. The outer rail extends 0.3 m over the landing; the inner rail stops at the first riser
  // so it does not cross the door. Balusters only where an edge is open: all along the outer side,
@@ -43,7 +44,7 @@ export function createImprovements(){
   for(let z=outer?ARCH.stairStart+.05:.15;z<=1.21;z+=.1)rod([x,pitch(z)+.04,z],[x,pitch(z)+.9,z],.008);
  }
  const rails=new THREE.InstancedMesh(new THREE.CylinderGeometry(1,1,1,10),red,matrices.length);
- matrices.forEach((m,i)=>rails.setMatrixAt(i,m));rails.name='void-guard-and-stair-handrails';rails.castShadow=rails.receiveShadow=true;applySolarShadows(red);group.add(rails);
+ matrices.forEach((m,i)=>rails.setMatrixAt(i,m));rails.name='stair-handrails';rails.castShadow=rails.receiveShadow=true;applySolarShadows(red);group.add(rails);
 
  // A quiet material change identifies the route behind the meditation seats.
  const passage=new THREE.MeshStandardMaterial({color:'#e1dacb',roughness:.92});

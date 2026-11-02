@@ -261,10 +261,11 @@ function rakedGravel(){
 
 export function createSite(patch:(m:THREE.Material)=>void){
  const group=new THREE.Group();group.name='site-model';
- // A walled temple court (30 x 36 m): white walls with dark coping, a stone axial path from the
+ // A walled temple court, square like the hall (36 x 36 m; author: the court is square): white walls with dark coping, a stone axial path from the
  // south gate to the plinth, twin still pools either side of it, raked gravel elsewhere.
  // Walls and pools are far enough out that low winter sun still reaches the sutra wall.
- const C={x:15,north:-14,south:22,gate:2.5,wall:3.2};
+ // The hall stands 14 m from the north wall and 22 m from the gate, leaving the forecourt for the pools.
+ const C={x:18,north:-14,south:22,gate:2.5,wall:3.2};
  // Gravel texture coordinates are in metres (the court is a shape with the pools cut out).
  const raked=rakedGravel();raked.map.repeat.set(17/30,21/36);raked.normalMap.repeat.set(17/30,21/36);
  const gravel=new THREE.MeshStandardMaterial({map:raked.map,normalMap:raked.normalMap,normalScale:new THREE.Vector2(.5,.5),roughness:.95});patch(gravel);
@@ -309,7 +310,7 @@ export function createSite(patch:(m:THREE.Material)=>void){
  const burner=incenseBurner(patch);burner.group.position.set(0,GROUND_Y,5.9);group.add(burner.group);
  // Tree pits: stone-edged squares with moss, for the two ginkgo.
  const moss=new THREE.MeshStandardMaterial({color:'#56623f',roughness:1});patch(moss);
- for(const x of [-9.5,9.5]){
+ for(const x of [-12.5,12.5]){
   const z=-8.5;
   for(const [w,d,dx,dz] of [[2.6,.14,0,-1.23],[2.6,.14,0,1.23],[.14,2.32,-1.23,0],[.14,2.32,1.23,0]] as number[][])block(w,.12,d,x+dx,.06,z+dz,stone);
   flat(2.32,2.32,x,z,.03,moss);
@@ -371,9 +372,9 @@ export function createSite(patch:(m:THREE.Material)=>void){
  const spots:{x:number;z:number;s:number;r:number;ginkgo:boolean}[]=[];
  const take=(x:number,z:number,ginkgo=false,scale=.85+rand()*.4)=>{if(spots.some(p=>Math.hypot(p.x-x,p.z-z)<3.4))return;spots.push({x,z,s:scale,r:rand()*Math.PI*2,ginkgo})};
  // Two ginkgo in the court's northern corners (golden in autumn, as in old Beijing temples).
- take(-9.5,-8.5,true,1.25);take(9.5,-8.5,true,1.2);
+ take(-12.5,-8.5,true,1.25);take(12.5,-8.5,true,1.2);
  for(let i=0;i<90&&spots.length<30;i++){const x=(rand()-.5)*50,z=-17-rand()*20;take(x,z)}         // grove beyond the north wall
- for(const side of [-1,1])for(let i=0;i<14;i++){const x=side*(17.5+rand()*9),z=-12+rand()*22;take(x,z)} // beyond the east and west walls
+ for(const side of [-1,1])for(let i=0;i<14;i++){const x=side*(20.5+rand()*9),z=-12+rand()*22;take(x,z)} // beyond the east and west walls
  const bark=new THREE.MeshStandardMaterial({color:'#d6d0c4',roughness:.9});patch(bark);
  variants.forEach((g,k)=>{
   const mine=spots.filter((_,i)=>i%variants.length===k);
