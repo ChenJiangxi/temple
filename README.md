@@ -5,7 +5,9 @@
 2026 年，作者和 AI 一起，根据当年的 CAD 图纸和实体模型照片把它重建成三维，放到网页上。网页按北纬 39° 的真实太阳计算任意日期、任意时刻的光影。
 
 - **网站**：<https://temple.jessylab.cc>（电脑打开效果最好）
-- **宣传片**：[media/temple-promo-1080p.mp4](media/temple-promo-1080p.mp4)（79 秒，1920×1080，配乐 Clean Soul）
+- **宣传片**：<https://temple.jessylab.cc/film/>（79 秒，1920×1080，配乐 Clean Soul，点开即播）
+
+[![宣传片：点击播放](media/film-poster.jpg)](https://temple.jessylab.cc/film/)
 
 <p>
 <img src="media/cover-night.jpg" width="49%" alt="春分蓝调时刻，经文由殿内投到前院">
@@ -85,7 +87,7 @@ bun run preview
 3. `film/render-all.sh` 用浏览器自动化逐段渲染。它需要本地静态服务：`python3 -m http.server 4191 --bind 127.0.0.1 -d dist`。
 4. `film/assemble3.sh "film/library/Clean Soul.mp3"` 把各段用 0.4 秒叠化拼接，首尾淡入淡出，配乐统一到约 −16 LUFS，编码为 H.264。镜头时长都是 92 BPM 的整拍数。
 
-仓库里的视频是 CRF 23 的版本，约 52 MB，满足 GitHub 单文件限制。渲染中间文件和原曲不入库。
+视频文件在 `public/film/temple-promo-1080p.mp4`（CRF 23，约 52 MB），和播放页 `public/film/index.html` 一起随网站发布在 `/film/`。GitHub 只能在 README 里内嵌经它自己编辑器上传、10 MB 以内的视频，所以这里用封面链接到网站播放。渲染中间文件和原曲不入库。
 
 ## 目录
 
@@ -106,7 +108,8 @@ src/
   film.ts             宣传片镜头与字幕
 reference/            CAD 提取数据、经文字形、日照推算、浮雕建模
 film/                 宣传片渲染、配乐与拼接脚本、小红书文案
-media/                宣传片与封面、截图
+public/film/          宣传片与播放页（发布在网站 /film/）
+media/                封面、截图
 scripts/              开发与检查用的脚本
 DESIGN.md             完整的设计决定与逐次改动记录
 docs/README-history.md  2026-11-03 之前 README 里的开发记录
