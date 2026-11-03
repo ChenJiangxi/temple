@@ -3,6 +3,8 @@
 # H.264 1080p30. Shot lengths come from the frames actually rendered.
 #   ./assemble3.sh            -> cut3-video.mp4 (no sound) for the preview page
 #   ./assemble3.sh a|b|c      -> cut3-<x>.mp4 with music-<x>.wav at about -16 LUFS
+#   ./assemble3.sh <file>     -> cut3-final.mp4 with any music file (the final cut used
+#                                library/Clean Soul.mp3), from its start, faded out at the end
 set -euo pipefail
 cd "$(dirname "$0")"
 SHOTS=(open sunrise grille column sutra floor buddha upper roof day golden seasons section dusk plan ground gate)
@@ -23,9 +25,11 @@ filter+="${prev}fade=t=in:st=0:d=1,fade=t=out:st=$(echo "$total - 1.6" | bc):d=1
 if [ $# -eq 0 ]; then
   ffmpeg -loglevel error -y "${inputs[@]}" -filter_complex "$filter" -map "[v]" -c:v libx264 -preset slow -crf 18 -r 30 -t "$total" -movflags +faststart cut3-video.mp4
 else
-  I=$(ffmpeg -hide_banner -i music-$1.wav -af ebur128 -f null - 2>&1 | grep -E '^\s+I:' | tail -1 | grep -oE '[-0-9.]+')
+  if [ -f "$1" ]; then src="$1"; out=cut3-final.mp4; else src="music-$1.wav"; out="cut3-$1.mp4"; fi
+  ffmpeg -loglevel error -y -t "$total" -i "$src" -ar 48000 -ac 2 /tmp/assemble3-music.wav
+  I=$(ffmpeg -hide_banner -i /tmp/assemble3-music.wav -af ebur128 -f null - 2>&1 | grep -E '^\s+I:' | tail -1 | grep -oE '[-0-9.]+')
   gain=$(echo "-16 - ($I)" | bc)
-  filter+=";[${#SHOTS[@]}:a]volume=${gain}dB,alimiter=limit=0.84:level=false,afade=t=out:st=$(echo "$total - 2" | bc):d=2[a]"
-  ffmpeg -loglevel error -y "${inputs[@]}" -i music-$1.wav -filter_complex "$filter" -map "[v]" -map "[a]" -c:v libx264 -preset slow -crf 18 -r 30 -c:a aac -b:a 192k -t "$total" -movflags +faststart cut3-$1.mp4
+  filter+=";[${#SHOTS[@]}:a]volume=${gain}dB,alimiter=limit=0.84:level=false,afade=t=in:d=0.3,afade=t=out:st=$(echo "$total - 3" | bc):d=3[a]"
+  ffmpeg -loglevel error -y "${inputs[@]}" -i /tmp/assemble3-music.wav -filter_complex "$filter" -map "[v]" -map "[a]" -c:v libx264 -preset slow -crf 18 -r 30 -c:a aac -b:a 192k -t "$total" -movflags +faststart "$out" 
 fi
 echo "total ${total}s"
