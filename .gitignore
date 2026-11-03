@@ -22,3 +22,6 @@ film/*.zip
 film/preview/
 film/library/
 film/covers/
+film/review*/
+film/tracks/
+film/check*/
